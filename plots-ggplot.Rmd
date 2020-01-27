@@ -5,6 +5,175 @@ date: "1/27/2020"
 output: html_document
 ---
 
-# Plots with ggplot2
+### Plots with ggplot2
 
 We are going to make plots in R using the ggplot2 package from the tidyverse.
+
+We will install these packages:
+
+- tidyverse
+- readxl
+- here
+
+```{r setup, message=FALSE}
+
+library(tidyverse) #install.packages("tidyverse")
+library(readxl) #install.packages("readxl")
+library(here) #install.packages("here")
+
+```
+
+### California National Parks Data
+
+```{r read-data}
+
+ca_np <- read_csv(here("data/ca_np.csv"))
+#also can be written as:
+#ca_np <- read_csv("data/ca_np.csv")
+
+ci_np <- read_excel(here("data/ci_np.xlsx"))
+
+```
+
+
+### Make my own first graph!
+
+We're going to make a scatterplot of year (x-var) versus visitors (y-var) in ggplot:
+
+Note: Command + Alt + I = insert new code chunk
+
+```{r}
+
+ggplot(data = ci_np, mapping = aes(year, visitors)) +
+  geom_point()
+
+
+```
+
+### Creating the base layer of my graphs as an object
+which makes it easier to use for different types of graphs
+
+```{r}
+
+gg_base <- ggplot(data = ci_np, mapping = aes(year, visitors))
+
+gg_base + 
+  geom_point()
+
+```
+
+### Now let's start customizing!
+
+Type of argument to use:
+- Line/point colors: color
+- Change line type: linetype
+- Change point style: pch
+- Change transparency: alpha
+- Change size: size
+
+```{r}
+
+gg_base + 
+  geom_point(
+    color = "blue",
+    linetype = "dashed",
+    pch = 8,
+    size = 3
+  )
+
+```
+
+### Update graph aesthetics based on variables
+
+To do: wrap the argumnet in "aes()"
+
+```{r}
+
+gg_base +
+  geom_point(
+    aes(size = visitors,
+        color = year),
+    pch = 8
+  )
+
+```
+
+### Use gg-themes for overall updates
+
+- theme_light()
+- theme_minimal()
+- theme_bw() : ie, black & white
+
+```{r}
+
+gg_base + 
+  geom_line(
+    aes(size = visitors,
+        color = year),
+    pch = 8
+  ) + 
+  theme_linedraw()
+
+```
+
+### Create a multi-series line plot using data for all CA National Parks
+
+```{r}
+
+ggplot(ca_np, aes(year, visitors, group = park_name)) + 
+  geom_line(
+    aes(color = park_name,
+        size = visitors)
+  )
+
+```
+
+### Create a different graph for each type of one variable
+
+Use facet_wrap(~) which creates a separate chart for each type of "facet"
+
+Remove the legends by : show.legend = FALSE
+
+```{r}
+
+ggplot(ca_np, aes(year, visitors, group = park_name)) + 
+  geom_point(
+    aes(color = park_name,
+        size = visitors),
+    show.legend = FALSE
+  ) + 
+  facet_wrap(~park_name, scales = "free") + #creates a different chart for each park_name and gives each chart their own scale (the default scale is fixed which means all charts would be on the same scale)
+  theme_bw()
+
+```
+
+### Create these graphs as a base layer
+
+```{r}
+
+my_np_graph <- ggplot(ca_np, aes(year, visitors, group = park_name)) + 
+  geom_point(
+    aes(color = park_name,
+        size = visitors),
+    show.legend = FALSE
+  ) + 
+  facet_wrap(~park_name, scales = "free") + #creates a different chart for each park_name and gives each chart their own scale (the default scale is fixed which means all charts would be on the same scale)
+  theme_bw()
+
+```
+
+
+### Export my graph as a .png
+
+```{r}
+
+ggsave(plot = my_np_graph, here("graphs", "np_graph.png"))
+
+```
+
+
+
+
+
+
+
