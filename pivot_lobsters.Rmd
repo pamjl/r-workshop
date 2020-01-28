@@ -1,0 +1,100 @@
+---
+title: "Pivot Lobsters"
+author: "Julia Large"
+date: "1/27/2020"
+output: html_document
+---
+
+```{r}
+
+library(here)
+library(tidyverse)
+library(readxl)
+library(skimr)
+library(kableExtra)
+
+lobsters <- read_xlsx(here("data", "lobsters.xlsx"),
+                      skip = 4) # skip the first 4 rows of the file
+
+```
+
+### Viewing our data with skimr
+
+```{r}
+
+skimr::skim(lobsters) #the "::" notation makes it clear which package the function is being pulled from, which is useful when you're using a function which you don't commonly use
+
+#the above is the same as the below:
+
+skim(lobsters)
+
+```
+
+
+### Pivot Tables
+In R, pivot tables are: group_by() %>% summarize()
+Shortcut for pipes: CTRL-shift-m
+'n()' function counts number of variables/observations
+
+```{r}
+
+#pivot table grouped by year
+lobsters %>% 
+  group_by(year) %>% 
+  summarize(count_by_year = n())
+
+#pivot table grouped by year and site
+lobsters %>% 
+  group_by(site,
+           year) %>% 
+  summarize(count_by_year_site = n())
+
+```
+
+### Summarize by multiple variables and save as an object (siteyear_summary)
+
+To exclude missing values which would prevent the calculation from happening, use na.rm = TRUE 
+(in excel, this would be iferror() )
+(na.rm stands for "non-applicable.remove")
+
+```{r}
+
+siteyear_summary <- lobsters %>% 
+  group_by(site,
+           year) %>% 
+  summarize(count_by_site_year = n(),
+            mean_size_mm = mean(size_mm, na.rm = TRUE),
+            sd_size_mm = sd(size_mm, na.rm = TRUE))
+
+```
+
+### Table formatting with `kableExtra::kable()`
+
+```{r}
+
+siteyear_summary %>% 
+  kableExtra::kable()
+
+```
+
+#### There are `r nrow(lobsters)` total lobsters included in this report.
+
+```{r}
+
+med_lobsters <- lobsters %>% 
+  group_by(site,
+           year) %>% 
+  summarize(med_size_mm = median(size_mm, na.rm = TRUE))
+
+ggplot(med_lobsters, aes(year, med_size_mm)) + 
+  geom_point(aes(color = site,
+                 size = med_size_mm))
+
+```
+
+
+
+
+
+
+
