@@ -13,7 +13,7 @@ library(readxl)
 library(skimr)
 library(kableExtra)
 
-lobsters <- read_xlsx(here("data", "lobsters.xlsx"),
+lobsters <- read_xlsx(here("data", "lobsters2.xlsx"),
                       skip = 4) # skip the first 4 rows of the file
 
 ```
